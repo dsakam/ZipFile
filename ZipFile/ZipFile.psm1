@@ -51,11 +51,11 @@ function Expand-ZipFile {
     
     Force パラメーターが指定されていないときは、System.IO.Compression.ZipArchive クラスを使って 
     Zip ファイル内のエントリーをチェックします。
-    これは Zip ファイルに含まれるファイルの数が多いときにはパフォーマンスに影響する可能性があることを意味します。
-    Zip ファイルに含まれるファイルの数が多いときは Force オプションを指定することを検討してください。
+    これは Zip ファイルに含まれるファイルの数が多い場合はパフォーマンスに影響する可能性があるので、
+    そのような場合は Force オプションを指定することを検討してください。
 
     System.IO.Compression.FileSystem.dll のロードに失敗すると、シェルモードで Zip ファイルを解凍します。
-    シェルモードでは、CopyHere メソッドを使って Zip ファイルを解凍します。
+    シェルモードでは、System.Shell.Folder.CopyHere メソッドを使って Zip ファイルを解凍します。
 
 
 .PARAMETER InputObject
@@ -247,7 +247,7 @@ function New-ZipFile {
     System.IO.Compression.ZipFileExtensions クラスの CreateEntryFromFile 拡張メソッドを使って Zip ファイルを作成します。
 
     System.IO.Compression.FileSystem.dll のロードに失敗すると、シェルモードで Zip ファイルを作成します。
-    シェルモードでは、CopyHere メソッドを使って Zip ファイルを作成します。
+    シェルモードでは、System.Shell.Folder.CopyHere メソッドを使って Zip ファイルを作成します。
     シエルモードでは、フォルダーの圧縮をサポートしていません。
 
 
