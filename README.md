@@ -4,17 +4,14 @@ ZipFile
 Zip File Compression and Decompression Module for PowerShell
 
 
-Version
--------
+Version History
+---------------
 
-V1.0.0.1
+**V1.0.0.1**  
+ファイル削除の警告メッセージの内容と、Wirte-Warning から Write-Verbose に変更。
 
-
-History
--------
-
-* **V1.0.0.0**  1st Edition
-* **V1.0.0.1**  ファイル削除の警告メッセージの内容と、Wirte-Warning から Write-Verbose に変更。
+**V1.0.0.0**  
+1st Edition
 
 
 Expand-ZipFile
