@@ -23,6 +23,8 @@
  # Zip File Compression and Decompression Module for PowerShell
  #
  #  2013/11/15  Version 0.0.0.1
+ #  2013/12/12  Version 1.0.0.0  1st Public Edition
+ #  2013/12/13  Version 1.0.0.1  File Delete Message is changed from Waning into Verbose.
  #
  #>
 #####################################################################################################################################################
@@ -164,7 +166,8 @@ function Expand-ZipFile {
             {
                 # Load Assembly
                 [void][System.Reflection.Assembly]::Load($script:AssemblyName)
-                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] Loading '" + ($script:AssemblyName -split ",")[0] + "' has been completed successfully." )
+                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "': " `
+                    + "'" + ($script:AssemblyName -split ",")[0] + "' is loaded successfully." )
 
                 if ($Force)
                 {
@@ -183,7 +186,7 @@ function Expand-ZipFile {
                             {
                                 # File Already Exist (Remove entry...)
                                 Remove-Item -Path $entry -Force
-                                Write-Warning ("[" + $MyInvocation.MyCommand.Name + "] '" + $entry + "' is removed.")
+                                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "': " + "'" + $entry + "' is removed.")
                             }
                         }
                     }
@@ -202,7 +205,7 @@ function Expand-ZipFile {
             if (-not $completed)
             {
                 # Shell-Mode
-                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] Enter Shell-Mode...")
+                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "](Shell) '" + $source_Filename + "': " + "Enter Shell mode...")
 
                 # Destination Folder
                 if (-not ($destination_Path | Test-Path)) { New-Item -Path $destination_Path -ItemType Directory }
@@ -220,7 +223,7 @@ function Expand-ZipFile {
 
                 # Unzip (by Shell)
                 $dest.CopyHere($zip.Items(), $opt)
-                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "](Shell-Mode) '" + $source_Filename + "' -> '" + $destination_Path + "'")
+                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "](Shell) '" + $source_Filename + "' -> '" + $destination_Path + "'")
             }
 
             # Output
@@ -367,13 +370,13 @@ function New-ZipFile {
             {
                 # Load Assembly
                 [void][System.Reflection.Assembly]::Load($script:AssemblyName)
-                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] Loading '" + ($script:AssemblyName -split ",")[0] + "' has been completed successfully." )
+                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "': '" + ($script:AssemblyName -split ",")[0] + "' is loaded successfully." )
 
                 if (($destination_Path | Test-Path) -and (-not $Force))
                 {
                     # File Already Exist
-                    Write-Warning ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "': Zip Compression Aborted!")
-                    Write-Warning ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "': '" + $destination_Path + "' already exists.")
+                    Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "': " + "Zip Compression Aborted!")
+                    Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "': " + "'" + $destination_Path + "' already exists.")
                     $aborted = $true
                 }
                 else
@@ -407,7 +410,7 @@ function New-ZipFile {
             if ((-not $aborted) -and (-not $completed))
             {
                 # Shell mode
-                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] Enter Shell-Mode...")
+                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "](Shell) '" + $source_Filename + "': " + "Enter Shell mode...")
 
                 # Decompression of Directory in Shell mode is not supported...
                 if (($source_Path | Get-Item).GetType() -eq [System.IO.DirectoryInfo]) { throw New-Object System.NotSupportedException }
@@ -422,7 +425,7 @@ function New-ZipFile {
 
                 # Create ZIP File (Shell mode)
                 $zip.CopyHere(([System.IO.FileInfo]$source_Path).FullName)
-                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "](Shell-Mode) '" + $source_Filename + "' -> '" + $destination_Path + "'")
+                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "](Shell) '" + $source_Filename + "' -> '" + $destination_Path + "'")
             }
 
             # Output

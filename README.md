@@ -1,7 +1,13 @@
-ZipFile
-=======
+ZipFile V1.0.0.1
+================
 
 Zip File Compression and Decompression Module for PowerShell
+
+
+History
+-------
+V1.0.0.0  1st Edition
+V1.0.0.0  ファイル削除の警告メッセージの内容と、Wirte-Warning から Write-Verbose に変更。
 
 
 Expand-ZipFile
