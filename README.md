@@ -13,8 +13,8 @@ V1.0.0.1
 History
 -------
 
-*V1.0.0.0  1st Edition
-*V1.0.0.1  ファイル削除の警告メッセージの内容と、Wirte-Warning から Write-Verbose に変更。
+* V1.0.0.0  1st Edition
+* V1.0.0.1  ファイル削除の警告メッセージの内容と、Wirte-Warning から Write-Verbose に変更。
 
 
 Expand-ZipFile
