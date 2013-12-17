@@ -24,8 +24,9 @@
  # Zip File Compression and Decompression Module for PowerShell
  #
  #  2013/11/15  Version 0.0.0.1
- #  2013/12/12  Version 1.0.0.0  1st Public Edition
+ #  2013/12/12  Version 1.0.0.0  1st Public Release
  #  2013/12/13  Version 1.0.0.1  File Delete Message is changed from Waning into Verbose.
+ #  2013/12/17  Version 1.0.0.2  Minor Change
  #
  #>
 #####################################################################################################################################################
@@ -38,7 +39,7 @@ $script:AssemblyName = "System.IO.Compression, Version=4.0.0.0, Culture=neutral,
 #>
 
 #####################################################################################################################################################
-function Expand-ZipFile {
+Function Expand-ZipFile {
 
 <#
 .SYNOPSIS
@@ -126,7 +127,8 @@ function Expand-ZipFile {
     http://msdn.microsoft.com/ja-jp/library/system.io.compression.ziparchive.aspx
 #>
 
-    [CmdletBinding()] Param (
+    [CmdletBinding()]
+    Param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
         [ValidateScript ( {
             # File Existence Check
@@ -234,7 +236,7 @@ function Expand-ZipFile {
 }
 
 #####################################################################################################################################################
-function New-ZipFile {
+Function New-ZipFile {
 
 <#
 .SYNOPSIS
@@ -325,7 +327,8 @@ function New-ZipFile {
     http://msdn.microsoft.com/ja-jp/library/system.io.compression.ziparchive.aspx
 #>
 
-    [CmdletBinding()] Param (
+    [CmdletBinding()]
+    Param(
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
