@@ -21,7 +21,7 @@
 
 ######## HISTORY ####################################################################################################################################
 <#
- # Zip File Compression and Decompression Module for PowerShell
+ # Zip File Compression / Decompression Module for PowerShell
  #
  #  2013/11/15  Version 0.0.0.1
  #  2013/12/12  Version 1.0.0.0  1st Public Release
