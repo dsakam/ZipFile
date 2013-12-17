@@ -1,16 +1,26 @@
 ZipFile
 =======
 
-Zip File Compression and Decompression Module for PowerShell
+Zip File Compression / Decompression Module for PowerShell Version **1.0.0.2**
+
+
+概要
+----
+
+Zip ファイルの作成と解凍を行うための PowerShell モジュールです。
+
 
 
 履歴
 ----
 
-**V1.0.0.1**  
+**V1.0.0.2** (2013/12/17)  
+コメントやREADME.md等の小変更
+
+**V1.0.0.1** (2013/12/13)  
 ファイル削除の警告メッセージを Wirte-Warning から Write-Verbose に変更。
 
-**V1.0.0.0**  
+**V1.0.0.0**  (2013/12/12)  
 1st Edition
 
 
@@ -21,9 +31,6 @@ Zip ファイルのファイル名から拡張子 (.zip) を除いたフォル�
 
 **Expand-ZipFile** コマンドレットは、まず System.IO.Compression.FileSystem.dll のロードを試みます。  
 System.IO.Compression.FileSystem.dll のロードに成功すると、System.IO.Compression.ZipFile クラスの ExtractToDirectory メソッドを使って Zip ファイルを解凍します。
-
-**Force** パラメーターが指定されていないときは、System.IO.Compression.ZipArchive クラスを使って Zip ファイル内のエントリーをチェックします。  
-Zip ファイルに含まれるファイルの数が多い場合はパフォーマンスに影響する可能性があるので、そのような場合は **Force** オプションを指定することを検討してください。  
 
 System.IO.Compression.FileSystem.dll のロードに失敗すると、シェルモードで Zip ファイルを解凍します。  
 シェルモードでは、System.Shell.Folder.CopyHere メソッドを使って Zip ファイルを解凍します。
