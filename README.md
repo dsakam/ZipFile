@@ -1,7 +1,7 @@
 ZipFile
 =======
 
-Zip File Compression / Decompression Module for PowerShell Version **1.0.0.2**
+Zip File Compression / Decompression Module for PowerShell Version **1.0.0.3**
 
 
 概要
@@ -14,8 +14,11 @@ Zip ファイルの作成と解凍を行うための PowerShell モジュール�
 履歴
 ----
 
+**V1.0.0.3** (2013/12/28)  
+README.md の小変更。
+
 **V1.0.0.2** (2013/12/17)  
-コメントやREADME.md等の小変更。
+コメントや README.md 等の小変更。
 
 **V1.0.0.1** (2013/12/13)  
 ファイル削除の警告メッセージを Wirte-Warning から Write-Verbose に変更。
