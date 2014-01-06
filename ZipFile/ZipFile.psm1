@@ -28,9 +28,9 @@
  #  2013/12/13  Version 1.0.0.1  File Delete Message is changed from Waning into Verbose.
  #  2013/12/17  Version 1.0.0.2  Minor Change
  #  2013/12/28  Version 1.0.0.3  No change is made to this script.
- #  2014/01/06  Version 1.0.1.0  Add Data Check of "Path" Parameter of Expand-Zip Comdlet
+ #  2014/01/06  Version 1.0.1.0  Add Data Check of "InputObject" Parameter of Expand-Zip Comdlet
  #  2014/01/06  Version 1.0.2.0  Change type of a exception from "System.IO.InvalidDataException" to "System.IO.FileFormatException"
- #                               when content of file is empty.
+ #                               when content of file ("InputObject" Parameter) is empty.
  #>
 #####################################################################################################################################################
 
