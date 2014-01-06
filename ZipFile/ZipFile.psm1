@@ -1,6 +1,6 @@
 ﻿######## LICENSE ####################################################################################################################################
 <#
- # Copyright (c) 2013, Daiki Sakamoto
+ # Copyright (c) 2013-2014, Daiki Sakamoto
  # All rights reserved.
  #
  # Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,6 +27,8 @@
  #  2013/12/12  Version 1.0.0.0  1st Public Release
  #  2013/12/13  Version 1.0.0.1  File Delete Message is changed from Waning into Verbose.
  #  2013/12/17  Version 1.0.0.2  Minor Change
+ #  2013/12/28  Version 1.0.0.3  No change is made to this script.
+ #  2014/01/06  Version 1.0.1.0  Add Data Check of "Path" Parameter of Expand-Zip Comdlet
  #
  #>
 #####################################################################################################################################################
@@ -134,8 +136,11 @@ Function Expand-ZipFile {
             # File Existence Check
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
 
+            # Data Check
+            if ((Get-Content -Path $_) -eq $null) { throw New-Object System.IO.InvalidDataException }
+
             # File Format Check
-            if ([System.Text.Encoding]::ASCII.GetString((Get-Content $_ -Encoding Byte -First 2)) -ne "PK")
+            if ([System.Text.Encoding]::ASCII.GetString((Get-Content -Path $_ -Encoding Byte -First 2)) -ne "PK")
             {
                 throw New-Object System.IO.FileFormatException
             }
