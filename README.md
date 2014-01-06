@@ -1,7 +1,7 @@
 ZipFile
 =======
 
-Zip File Compression / Decompression Module for PowerShell Version **1.0.0.3**
+Zip File Compression / Decompression Module for PowerShell Version **1.0.1.0**
 
 
 概要
@@ -13,6 +13,10 @@ Zip ファイルの作成と解凍を行うための PowerShell モジュール�
 
 履歴
 ----
+
+**V1.0.1.0** (2014/01/06)  
+Expand-Zip コマンドレットの Path パラメーターのバリデーション (ValidateScript) に処理を追加。  
+また、Copyright に 2014 年を追加。
 
 **V1.0.0.3** (2013/12/28)  
 README.md の小変更。
