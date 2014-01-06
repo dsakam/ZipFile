@@ -29,7 +29,8 @@
  #  2013/12/17  Version 1.0.0.2  Minor Change
  #  2013/12/28  Version 1.0.0.3  No change is made to this script.
  #  2014/01/06  Version 1.0.1.0  Add Data Check of "Path" Parameter of Expand-Zip Comdlet
- #
+ #  2014/01/06  Version 1.0.2.0  Change type of a exception from "System.IO.InvalidDataException" to "System.IO.FileFormatException"
+ #                               when content of file is empty.
  #>
 #####################################################################################################################################################
 
@@ -137,7 +138,7 @@ Function Expand-ZipFile {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
 
             # Data Check
-            if ((Get-Content -Path $_) -eq $null) { throw New-Object System.IO.InvalidDataException }
+            if ((Get-Content -Path $_) -eq $null) { throw New-Object System.IO.FileFormatException }
 
             # File Format Check
             if ([System.Text.Encoding]::ASCII.GetString((Get-Content -Path $_ -Encoding Byte -First 2)) -ne "PK")
