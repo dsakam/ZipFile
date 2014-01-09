@@ -1,7 +1,7 @@
 ZipFile
 =======
 
-Zip File Compression / Decompression Module for PowerShell Version **1.0.2.0**
+Zip File Compression / Decompression Module for PowerShell Version **1.0.3.0**
 
 
 概要
@@ -13,6 +13,9 @@ Zip ファイルの作成と解凍を行うための PowerShell モジュール�
 
 履歴
 ----
+
+**V1.0.3.0** (2014/01/10)  
+Expand-Zip コマンドレットの InputObject パラメーターにフォルダーが指定された時の例外処理を追加しました。
 
 **V1.0.2.0** (2014/01/06)  
 Expand-Zip コマンドレットの InputObject パラメーターに空のファイルを指定した時の例外を System.IO.InvalidDataException から System.IO.FileFormatException に変更しました。
