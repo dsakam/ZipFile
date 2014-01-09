@@ -31,6 +31,7 @@
  #  2014/01/06  Version 1.0.1.0  Add Data Check of "InputObject" Parameter of Expand-Zip Comdlet
  #  2014/01/06  Version 1.0.2.0  Change type of a exception from "System.IO.InvalidDataException" to "System.IO.FileFormatException"
  #                               when content of file ("InputObject" Parameter) is empty.
+ #  2014/01/10  Version 1.0.3.0  Add validation of "-InputObject" paramater of "Expand-ZipFile" Cmdlet.
  #>
 #####################################################################################################################################################
 
@@ -136,6 +137,9 @@ Function Expand-ZipFile {
         [ValidateScript ( {
             # File Existence Check
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+
+            # Check File or Directory [+](2014/01/10)
+            if ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
 
             # Data Check
             if ((Get-Content -Path $_) -eq $null) { throw New-Object System.IO.FileFormatException }
