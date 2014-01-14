@@ -31,7 +31,8 @@
  #  2014/01/06  Version 1.0.1.0  Add Data Check of "InputObject" Parameter of Expand-Zip Comdlet
  #  2014/01/06  Version 1.0.2.0  Change type of a exception from "System.IO.InvalidDataException" to "System.IO.FileFormatException"
  #                               when content of file ("InputObject" Parameter) is empty.
- #  2014/01/10  Version 1.0.3.0  Add validation of "-InputObject" paramater of "Expand-ZipFile" Cmdlet.
+ #  2014/01/10  Version 1.0.3.0  Add validation of "-InputObject" paramater of Expand-ZipFile Cmdlet.
+ #  2014/01/14  Version 1.0.4.0  Change type of Zip Header from [object] into [byte[]] of New-ZipFile Cmdlet.
  #>
 #####################################################################################################################################################
 
@@ -138,7 +139,7 @@ Function Expand-ZipFile {
             # File Existence Check
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
 
-            # Check File or Directory [+](2014/01/10)
+            # Check File or Directory [+]V1.0.3.0 (2014/01/10)
             if ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
 
             # Data Check
@@ -429,8 +430,9 @@ Function New-ZipFile {
                 # Decompression of Directory in Shell mode is not supported...
                 if (($source_Path | Get-Item).GetType() -eq [System.IO.DirectoryInfo]) { throw New-Object System.NotSupportedException }
 
-                # Add Zip Header
-                Set-Content -Path $destination_Path -Value ("PK" + [char]5 + [char]6 + ("$([char]0)" * 18))
+                # Add Zip Header [*]V1.0.4.0 (2014/01/14)
+                $zip_Header = [System.Convert]::ToByte([char]"P"), [System.Convert]::ToByte([char]"K"), [byte[]](0x05, 0x06), ([byte[]]0x00 * 18)
+                $zip_Header | Set-Content -Path $destination_Path -Encoding Byte
 
                 ($destination_Path | Get-ChildItem).IsReadOnly = $false
         
