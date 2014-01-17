@@ -1,7 +1,7 @@
 ZipFile
 =======
 
-Zip File Compression / Decompression Module for PowerShell Version **1.0.4.0**
+Zip File Compression / Decompression Module for PowerShell Version **1.0.5.0**
 
 
 概要
@@ -13,6 +13,9 @@ Zip ファイルの作成と解凍を行うための PowerShell モジュール�
 
 履歴
 ----
+
+**V1.0.5.0** (2014/01/17)  
+型チェックの方法を変更しました。
 
 **V1.0.4.0** (2014/01/14)  
 New-ZipFile コマンドレットの Zip ヘッダーを書き込むときの型を object 型から byte 配列に変更。
