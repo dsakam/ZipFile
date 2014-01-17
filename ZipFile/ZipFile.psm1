@@ -33,6 +33,7 @@
  #                               when content of file ("InputObject" Parameter) is empty.
  #  2014/01/10  Version 1.0.3.0  Add validation of "-InputObject" paramater of Expand-ZipFile Cmdlet.
  #  2014/01/14  Version 1.0.4.0  Change type of Zip Header from [object] into [byte[]] of New-ZipFile Cmdlet.
+ #  2014/01/17  Version 1.0.5.0  Change expression of Type check
  #>
 #####################################################################################################################################################
 
@@ -139,8 +140,8 @@ Function Expand-ZipFile {
             # File Existence Check
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
 
-            # Check File or Directory [+]V1.0.3.0 (2014/01/10)
-            if ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
+            # Check File or Directory / [+]V1.0.3.0 (2014/01/10) / [*]V1.0.5.0 (2014/01/17)
+            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
 
             # Data Check
             if ((Get-Content -Path $_) -eq $null) { throw New-Object System.IO.FileFormatException }
@@ -196,7 +197,8 @@ Function Expand-ZipFile {
                         Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "': " + ([System.IO.Compression.ZipArchiveEntry]$_).FullName)
                         if (($entry = ($destination_Path | Join-Path -ChildPath ([System.IO.Compression.ZipArchiveEntry]$_).FullName)) | Test-Path)
                         {
-                            if (($entry | Get-Item).GetType() -ne [System.IO.DirectoryInfo])
+                            # [*]V1.0.5.0 (2014/01/17)
+                            if ((Get-Item -Path $entry) -isnot [System.IO.DirectoryInfo])
                             {
                                 # File Already Exist (Remove entry...)
                                 Remove-Item -Path $entry -Force
@@ -368,8 +370,8 @@ Function New-ZipFile {
             $source_Filename = ($source_Path | Split-Path -Leaf)
 
 
-            # Zip File Name (Path)
-            if (($source_Path | Get-Item).GetType() -eq [System.IO.FileInfo])
+            # Zip File Name (Path) / [*]V1.0.5.0 (2014/01/17)
+            if ((Get-Item -Path $source_Path) -is [System.IO.FileInfo])
             {
                 # File
                 $destination_Path = ($Path | Resolve-Path | Join-Path -ChildPath ([System.IO.FileInfo]$source_Path).BaseName) + ".zip"
@@ -399,8 +401,8 @@ Function New-ZipFile {
                     # Force
                     if ($destination_Path | Test-Path) { $destination_Path | Remove-Item -Force -Recurse }
 
-                    # Zip (by .NET)
-                    if ((Get-Item -Path $InputObject).GetType() -eq [System.IO.DirectoryInfo])
+                    # Zip (by .NET) / [*]V1.0.5.0 (2014/01/17)
+                    if ((Get-Item -Path $InputObject) -is [System.IO.DirectoryInfo])
                     {
                         # Directory
                         [System.IO.Compression.ZipFile]::CreateFromDirectory($source_Path, $destination_Path)
@@ -427,10 +429,10 @@ Function New-ZipFile {
                 # Shell mode
                 Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "](Shell) '" + $source_Filename + "': " + "Enter Shell mode...")
 
-                # Decompression of Directory in Shell mode is not supported...
-                if (($source_Path | Get-Item).GetType() -eq [System.IO.DirectoryInfo]) { throw New-Object System.NotSupportedException }
+                # Decompression of Directory in Shell mode is not supported... / [*]V1.0.5.0 (2014/01/17)
+                if ((Get-Item -Path $source_Path) -is [System.IO.DirectoryInfo]) { throw New-Object System.NotSupportedException }
 
-                # Add Zip Header [*]V1.0.4.0 (2014/01/14)
+                # Add Zip Header / [*]V1.0.4.0 (2014/01/14)
                 $zip_Header = [System.Convert]::ToByte([char]"P"), [System.Convert]::ToByte([char]"K"), [byte[]](0x05, 0x06), ([byte[]]0x00 * 18)
                 $zip_Header | Set-Content -Path $destination_Path -Encoding Byte
 
