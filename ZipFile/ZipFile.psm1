@@ -34,14 +34,17 @@
  #  2014/01/10  Version 1.0.3.0  Add validation of "-InputObject" paramater of Expand-ZipFile Cmdlet.
  #  2014/01/14  Version 1.0.4.0  Change type of Zip Header from [object] into [byte[]] of New-ZipFile Cmdlet.
  #  2014/01/17  Version 1.0.5.0  Change expression of Type check
+ #  2014/02/23  Version 1.1.0.0  Change some double quotations (") into single quotations (').
+ #                               Reconsidered comment style.
+ #                               Return [string]::Empty, when Zip compression is aborted because the file already exists.
  #>
 #####################################################################################################################################################
 
 #####################################################################################################################################################
 # Variables
-$script:AssemblyName = "System.IO.Compression.FileSystem, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+$script:AssemblyName = 'System.IO.Compression.FileSystem, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
 <#
-$script:AssemblyName = "System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+$script:AssemblyName = 'System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
 #>
 
 #####################################################################################################################################################
@@ -147,7 +150,7 @@ Function Expand-ZipFile {
             if ((Get-Content -Path $_) -eq $null) { throw New-Object System.IO.FileFormatException }
 
             # File Format Check
-            if ([System.Text.Encoding]::ASCII.GetString((Get-Content -Path $_ -Encoding Byte -First 2)) -ne "PK")
+            if ([System.Text.Encoding]::ASCII.GetString((Get-Content -Path $_ -Encoding Byte -First 2)) -ne 'PK')
             {
                 throw New-Object System.IO.FileFormatException
             }
@@ -181,8 +184,7 @@ Function Expand-ZipFile {
             {
                 # Load Assembly
                 [void][System.Reflection.Assembly]::Load($script:AssemblyName)
-                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "': " `
-                    + "'" + ($script:AssemblyName -split ",")[0] + "' is loaded successfully." )
+                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " '" + ($script:AssemblyName -split ',')[0] + "' is loaded successfully." )
 
                 if ($Force)
                 {
@@ -194,7 +196,7 @@ Function Expand-ZipFile {
                     # Check Zip Entries
                     [System.IO.Compression.ZipArchive]$archive = [System.IO.Compression.ZipFile]::OpenRead($source_Path)
                     $archive.Entries | % {
-                        Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "': " + ([System.IO.Compression.ZipArchiveEntry]$_).FullName)
+                        Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " Entry: '$source_Filename/" + ([System.IO.Compression.ZipArchiveEntry]$_).FullName + "'")
                         if (($entry = ($destination_Path | Join-Path -ChildPath ([System.IO.Compression.ZipArchiveEntry]$_).FullName)) | Test-Path)
                         {
                             # [*]V1.0.5.0 (2014/01/17)
@@ -202,7 +204,7 @@ Function Expand-ZipFile {
                             {
                                 # File Already Exist (Remove entry...)
                                 Remove-Item -Path $entry -Force
-                                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "': " + "'" + $entry + "' is removed.")
+                                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " Removed: '$entry'")
                             }
                         }
                     }
@@ -210,7 +212,7 @@ Function Expand-ZipFile {
             
                 # Unzip (by .NET)
                 [System.IO.Compression.ZipFile]::ExtractToDirectory($source_Path, $destination_Path)
-                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "' -> '" + $destination_Path + "'")
+                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " Expand: '$source_Filename' -> '$destination_Path'")
                 $completed = $true
             }
         }
@@ -221,7 +223,7 @@ Function Expand-ZipFile {
             if (-not $completed)
             {
                 # Shell-Mode
-                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "](Shell) '" + $source_Filename + "': " + "Enter Shell mode...")
+                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + ' Enter Shell mode...')
 
                 # Destination Folder
                 if (-not ($destination_Path | Test-Path)) { New-Item -Path $destination_Path -ItemType Directory }
@@ -232,14 +234,14 @@ Function Expand-ZipFile {
                 $opt = 0
 
                 # Verbose
-                if ($VerbosePreference -eq "SilentlyContinue") { $opt += (4 + 1024) }
+                if ($VerbosePreference -eq 'SilentlyContinue') { $opt += (4 + 1024) }
 
                 # Force
                 if ($Force) { $opt += 16 }
 
                 # Unzip (by Shell)
                 $dest.CopyHere($zip.Items(), $opt)
-                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "](Shell) '" + $source_Filename + "' -> '" + $destination_Path + "'")
+                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + " Expand: '$source_Filename' -> '$destination_Path'")
             }
 
             # Output
@@ -387,14 +389,16 @@ Function New-ZipFile {
             {
                 # Load Assembly
                 [void][System.Reflection.Assembly]::Load($script:AssemblyName)
-                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "': '" + ($script:AssemblyName -split ",")[0] + "' is loaded successfully." )
+                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " '" + ($script:AssemblyName -split ',')[0] + "' is loaded successfully." )
 
                 if (($destination_Path | Test-Path) -and (-not $Force))
                 {
                     # File Already Exist
-                    Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "': " + "Zip Compression Aborted!")
-                    Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "': " + "'" + $destination_Path + "' already exists.")
+                    Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " Zip Compression of '$source_Filename' is aborted because '$destination_Path' already exists!")
                     $aborted = $true
+
+                    # [+]2014/02/23
+                    $destination_Path = [string]::Empty
                 }
                 else
                 {
@@ -415,7 +419,7 @@ Function New-ZipFile {
 
                         [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $source_Path, ($source_Path | Split-Path -Leaf))
                     }
-                    Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] '" + $source_Filename + "' -> '" + $destination_Path + "'")
+                    Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " Expand: '$source_Filename' -> '$destination_Path'")
                     $completed = $true
                 }
             }
@@ -427,13 +431,13 @@ Function New-ZipFile {
             if ((-not $aborted) -and (-not $completed))
             {
                 # Shell mode
-                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "](Shell) '" + $source_Filename + "': " + "Enter Shell mode...")
+                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + ' Enter Shell mode...')
 
                 # Decompression of Directory in Shell mode is not supported... / [*]V1.0.5.0 (2014/01/17)
                 if ((Get-Item -Path $source_Path) -is [System.IO.DirectoryInfo]) { throw New-Object System.NotSupportedException }
 
                 # Add Zip Header / [*]V1.0.4.0 (2014/01/14)
-                $zip_Header = [System.Convert]::ToByte([char]"P"), [System.Convert]::ToByte([char]"K"), [byte[]](0x05, 0x06), ([byte[]]0x00 * 18)
+                $zip_Header = [System.Convert]::ToByte([char]'P'), [System.Convert]::ToByte([char]'K'), [byte[]](0x05, 0x06), ([byte[]]0x00 * 18)
                 $zip_Header | Set-Content -Path $destination_Path -Encoding Byte
 
                 ($destination_Path | Get-ChildItem).IsReadOnly = $false
@@ -443,7 +447,7 @@ Function New-ZipFile {
 
                 # Create ZIP File (Shell mode)
                 $zip.CopyHere(([System.IO.FileInfo]$source_Path).FullName)
-                Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "](Shell) '" + $source_Filename + "' -> '" + $destination_Path + "'")
+                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + "Expand: '$source_Filename' -> '$destination_Path'")
             }
 
             # Output
