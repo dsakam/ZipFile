@@ -1,7 +1,7 @@
 ZipFile
 =======
 
-Zip File Compression / Decompression Module for PowerShell Version **1.0.5.0**
+Zip File Compression / Decompression Module for PowerShell Version **1.1.0.0**
 
 
 概要
@@ -13,6 +13,11 @@ Zip ファイルの作成と解凍を行うための PowerShell モジュール�
 
 履歴
 ----
+
+**V1.1.0.0** (2014/02/23)  
+引用符（シングルクォーテーションとダブルクォーテーション）の扱いを変更しました。  
+冗長コンソール出力 (Write-Verbose) の内容を変更しました。  
+New-ZipFile コマンドレットで、既にファイルが存在するために Zip ファイルを作成しない場合の出力を [string]::Empty に変更しました。
 
 **V1.0.5.0** (2014/01/17)  
 型チェックの方法を変更しました。
