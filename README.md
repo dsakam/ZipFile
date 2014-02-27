@@ -1,7 +1,7 @@
 ZipFile
 =======
 
-Zip File Compression / Decompression Module for PowerShell Version **1.1.1.0**
+Zip File Compression / Decompression Module for PowerShell Version **1.1.2.0**
 
 
 概要
@@ -39,6 +39,9 @@ System.IO.Compression.FileSystem.dll のロードに失敗すると、シェル�
 
 履歴
 ----
+
+**V1.1.2.0** (2014/02/27)  
+一部の引用符（シングルクォーテーションとダブルクォーテーション）の変更。  
 
 **V1.1.1.0** (2014/02/27)  
 コメントのスタイルを少し変更しました。  
