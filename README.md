@@ -11,8 +11,38 @@ Zip ファイルの作成と解凍を行うための PowerShell モジュール�
 
 
 
+Expand-ZipFile
+--------------
+
+Zip ファイルのファイル名から拡張子 (.zip) を除いたフォルダを作成し、その中に Zip ファイルを解凍します。
+
+**Expand-ZipFile** コマンドレットは、まず System.IO.Compression.FileSystem.dll のロードを試みます。  
+System.IO.Compression.FileSystem.dll のロードに成功すると、System.IO.Compression.ZipFile クラスの ExtractToDirectory メソッドを使って Zip ファイルを解凍します。
+
+System.IO.Compression.FileSystem.dll のロードに失敗すると、シェルモードで Zip ファイルを解凍します。  
+シェルモードでは、System.Shell.Folder.CopyHere メソッドを使って Zip ファイルを解凍します。
+
+
+New-ZipFile
+-----------
+
+指定されたフォルダーまたはファイルから、フォルダー名またはファイル名に拡張子 .zip を付加した Zip ファイルを作成します。
+
+**New-ZipFile** コマンドレットは、まず System.IO.Compression.FileSystem.dll のロードを試みます。  
+System.IO.Compression.FileSystem.dll のロードに成功すると、圧縮対象がフォルダーの場合は System.IO.Compression.ZipFile クラスの CreateFromDirectory メソッドを使って Zip ファイルを作成します。  
+圧縮対象がファイルの場合は、System.IO.Compression.ZipArchive クラス、および System.IO.Compression.ZipFile クラスと System.IO.Compression.ZipFileExtensions クラスの CreateEntryFromFile 拡張メソッドを使って Zip ファイルを作成します。
+
+System.IO.Compression.FileSystem.dll のロードに失敗すると、シェルモードで Zip ファイルを作成します。  
+シェルモードでは、System.Shell.Folder.CopyHere メソッドを使って Zip ファイルを作成します。  
+シエルモードでは、フォルダーの圧縮をサポートしていません。
+
+
 履歴
 ----
+
+**V1.1.1.0** (2014/02/27)  
+コメントのスタイルを少し変更しました。  
+New-ZipFile コマンドレットで、既にファイルが存在するときのコンソール出力を冗長出力 (Write-Verbose) から、警告 (Write-Warning) に変更しました。
 
 **V1.1.0.0** (2014/02/23)  
 引用符（シングルクォーテーションとダブルクォーテーション）の扱いを変更しました。  
@@ -46,29 +76,3 @@ README.md の小変更。
 
 **V1.0.0.0**  (2013/12/12)  
 1st Edition
-
-
-Expand-ZipFile
---------------
-
-Zip ファイルのファイル名から拡張子 (.zip) を除いたフォルダを作成し、その中に Zip ファイルを解凍します。
-
-**Expand-ZipFile** コマンドレットは、まず System.IO.Compression.FileSystem.dll のロードを試みます。  
-System.IO.Compression.FileSystem.dll のロードに成功すると、System.IO.Compression.ZipFile クラスの ExtractToDirectory メソッドを使って Zip ファイルを解凍します。
-
-System.IO.Compression.FileSystem.dll のロードに失敗すると、シェルモードで Zip ファイルを解凍します。  
-シェルモードでは、System.Shell.Folder.CopyHere メソッドを使って Zip ファイルを解凍します。
-
-
-New-ZipFile
------------
-
-指定されたフォルダーまたはファイルから、フォルダー名またはファイル名に拡張子 .zip を付加した Zip ファイルを作成します。
-
-**New-ZipFile** コマンドレットは、まず System.IO.Compression.FileSystem.dll のロードを試みます。  
-System.IO.Compression.FileSystem.dll のロードに成功すると、圧縮対象がフォルダーの場合は System.IO.Compression.ZipFile クラスの CreateFromDirectory メソッドを使って Zip ファイルを作成します。  
-圧縮対象がファイルの場合は、System.IO.Compression.ZipArchive クラス、および System.IO.Compression.ZipFile クラスと System.IO.Compression.ZipFileExtensions クラスの CreateEntryFromFile 拡張メソッドを使って Zip ファイルを作成します。
-
-System.IO.Compression.FileSystem.dll のロードに失敗すると、シェルモードで Zip ファイルを作成します。  
-シェルモードでは、System.Shell.Folder.CopyHere メソッドを使って Zip ファイルを作成します。  
-シエルモードでは、フォルダーの圧縮をサポートしていません。
