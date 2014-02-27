@@ -35,8 +35,10 @@
  #  2014/01/14  Version 1.0.4.0  Change type of Zip Header from [object] into [byte[]] of New-ZipFile Cmdlet.
  #  2014/01/17  Version 1.0.5.0  Change expression of Type check
  #  2014/02/23  Version 1.1.0.0  Change some double quotations (") into single quotations (').
- #                               Reconsidered comment style.
- #                               Return [string]::Empty, when Zip compression is aborted because the file already exists.
+ #                               Reconsidered style of verbose output.
+ #                               (New-ZipFile) Return [string]::Empty, when Zip compression is aborted because the file already exists.
+ #  2014/02/27  Version 1.1.1.0  Modify verbose output style.
+ #                               (New-ZipFile) Change from Write-Verbose into Write-Warning when the file already exists.
  #>
 #####################################################################################################################################################
 
@@ -196,7 +198,7 @@ Function Expand-ZipFile {
                     # Check Zip Entries
                     [System.IO.Compression.ZipArchive]$archive = [System.IO.Compression.ZipFile]::OpenRead($source_Path)
                     $archive.Entries | % {
-                        Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " Entry: '$source_Filename/" + ([System.IO.Compression.ZipArchiveEntry]$_).FullName + "'")
+                        Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " ENTRY: $source_Filename/" + ([System.IO.Compression.ZipArchiveEntry]$_).FullName)
                         if (($entry = ($destination_Path | Join-Path -ChildPath ([System.IO.Compression.ZipArchiveEntry]$_).FullName)) | Test-Path)
                         {
                             # [*]V1.0.5.0 (2014/01/17)
@@ -204,7 +206,7 @@ Function Expand-ZipFile {
                             {
                                 # File Already Exist (Remove entry...)
                                 Remove-Item -Path $entry -Force
-                                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " Removed: '$entry'")
+                                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " REMOVE: $entry")
                             }
                         }
                     }
@@ -212,7 +214,7 @@ Function Expand-ZipFile {
             
                 # Unzip (by .NET)
                 [System.IO.Compression.ZipFile]::ExtractToDirectory($source_Path, $destination_Path)
-                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " Expand: '$source_Filename' -> '$destination_Path'")
+                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " '$source_Filename' -> '$destination_Path'")
                 $completed = $true
             }
         }
@@ -241,7 +243,7 @@ Function Expand-ZipFile {
 
                 # Unzip (by Shell)
                 $dest.CopyHere($zip.Items(), $opt)
-                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + " Expand: '$source_Filename' -> '$destination_Path'")
+                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + " '$source_Filename' -> '$destination_Path'")
             }
 
             # Output
@@ -394,10 +396,11 @@ Function New-ZipFile {
                 if (($destination_Path | Test-Path) -and (-not $Force))
                 {
                     # File Already Exist
-                    Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " Zip Compression of '$source_Filename' is aborted because '$destination_Path' already exists!")
+                    # [*]V1.1.1.0 (2014/02/27) Change from Write-Verbose into Write-Warning
+                    Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + " WARNING: Zip Compression of '$source_Filename' is aborted because '$destination_Path' already exists!")
                     $aborted = $true
 
-                    # [+]2014/02/23
+                    # [+]V1.1.0.0 (2014/02/23)
                     $destination_Path = [string]::Empty
                 }
                 else
@@ -419,7 +422,7 @@ Function New-ZipFile {
 
                         [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $source_Path, ($source_Path | Split-Path -Leaf))
                     }
-                    Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " Expand: '$source_Filename' -> '$destination_Path'")
+                    Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " '$source_Filename' -> '$destination_Path'")
                     $completed = $true
                 }
             }
@@ -447,7 +450,7 @@ Function New-ZipFile {
 
                 # Create ZIP File (Shell mode)
                 $zip.CopyHere(([System.IO.FileInfo]$source_Path).FullName)
-                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + "Expand: '$source_Filename' -> '$destination_Path'")
+                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + " '$source_Filename' -> '$destination_Path'")
             }
 
             # Output
