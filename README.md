@@ -1,7 +1,7 @@
 ZipFile
 =======
 
-Zip File Compression / Decompression Module for PowerShell Version **1.1.0.0**
+Zip File Compression / Decompression Module for PowerShell Version **1.1.1.0**
 
 
 概要
