@@ -39,6 +39,7 @@
  #                               (New-ZipFile) Return [string]::Empty, when Zip compression is aborted because the file already exists.
  #  2014/02/27  Version 1.1.1.0  Modify verbose output style.
  #                               (New-ZipFile) Change from Write-Verbose into Write-Warning when the file already exists.
+ #  2014/02/27  Version 1.1.2.0  Change convert some double quotations (") and single quotations (').
  #>
 #####################################################################################################################################################
 
@@ -225,7 +226,7 @@ Function Expand-ZipFile {
             if (-not $completed)
             {
                 # Shell-Mode
-                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + ' Enter Shell mode...')
+                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + " Enter Shell mode...")
 
                 # Destination Folder
                 if (-not ($destination_Path | Test-Path)) { New-Item -Path $destination_Path -ItemType Directory }
@@ -378,12 +379,12 @@ Function New-ZipFile {
             if ((Get-Item -Path $source_Path) -is [System.IO.FileInfo])
             {
                 # File
-                $destination_Path = ($Path | Resolve-Path | Join-Path -ChildPath ([System.IO.FileInfo]$source_Path).BaseName) + ".zip"
+                $destination_Path = ($Path | Resolve-Path | Join-Path -ChildPath ([System.IO.FileInfo]$source_Path).BaseName) + '.zip'
             }
             else
             {
                 # Directory
-                $destination_Path = ($Path | Resolve-Path | Join-Path -ChildPath ($source_Path | Split-Path -Leaf)) + ".zip"
+                $destination_Path = ($Path | Resolve-Path | Join-Path -ChildPath ($source_Path | Split-Path -Leaf)) + '.zip'
             }
 
 
@@ -434,7 +435,7 @@ Function New-ZipFile {
             if ((-not $aborted) -and (-not $completed))
             {
                 # Shell mode
-                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + ' Enter Shell mode...')
+                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + " Enter Shell mode...")
 
                 # Decompression of Directory in Shell mode is not supported... / [*]V1.0.5.0 (2014/01/17)
                 if ((Get-Item -Path $source_Path) -is [System.IO.DirectoryInfo]) { throw New-Object System.NotSupportedException }
