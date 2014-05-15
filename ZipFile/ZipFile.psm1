@@ -40,6 +40,7 @@
  #  2014/02/27  Version 1.1.1.0  Modify verbose output style.
  #                               (New-ZipFile) Change from Write-Verbose into Write-Warning when the file already exists.
  #  2014/02/27  Version 1.1.2.0  Change convert some double quotations (") and single quotations (').
+ #  2014/05/15  Version 1.2.0.0  Change validation of parameter of 'Expand-ZipFile' Cmdlet because of huge memory exhaust.
  #>
 #####################################################################################################################################################
 
@@ -149,11 +150,11 @@ Function Expand-ZipFile {
             # Check File or Directory / [+]V1.0.3.0 (2014/01/10) / [*]V1.0.5.0 (2014/01/17)
             if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
 
-            # Data Check
-            if ((Get-Content -Path $_) -eq $null) { throw New-Object System.IO.FileFormatException }
+            # Data Check [*]V1.2.0.0 (2014/05/15)
+            if (($filehead = Get-Content -Path $_ -Encoding Byte -First 2) -eq $null) { throw New-Object System.IO.FileFormatException }
 
-            # File Format Check
-            if ([System.Text.Encoding]::ASCII.GetString((Get-Content -Path $_ -Encoding Byte -First 2)) -ne 'PK')
+            # File Format Check [*]V1.2.0.0 (2014/05/15)
+            if ([System.Text.Encoding]::ASCII.GetString($filehead) -ne 'PK')
             {
                 throw New-Object System.IO.FileFormatException
             }
