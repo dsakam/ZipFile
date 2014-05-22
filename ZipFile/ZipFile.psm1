@@ -41,6 +41,9 @@
  #                               (New-ZipFile) Change from Write-Verbose into Write-Warning when the file already exists.
  #  2014/02/27  Version 1.1.2.0  Change convert some double quotations (") and single quotations (').
  #  2014/05/15  Version 1.2.0.0  Change validation of parameter of 'Expand-ZipFile' Cmdlet because of huge memory exhaust.
+ #  2014/05/22  Version 1.3.0.0  Fix bug regarding $Path parameter of 'New-ZipFile' cmdlet.
+ #                               Change indent style.
+ #                               Major change of internal process, especially regarding exception.
  #>
 #####################################################################################################################################################
 
@@ -52,93 +55,80 @@ $script:AssemblyName = 'System.IO.Compression, Version=4.0.0.0, Culture=neutral,
 #>
 
 #####################################################################################################################################################
-Function Expand-ZipFile {
+Function Expand-ZipFile
+{
+    <#
+        .SYNOPSIS
+            Zip ファイルを解凍します。
 
-<#
-.SYNOPSIS
-    Zip ファイルを解凍します。
+        .DESCRIPTION
+            Zip ファイルのファイル名から拡張子 (.zip) を除いたフォルダを作成し、その中に Zip ファイルを解凍します。
 
-
-.DESCRIPTION
-    Zip ファイルのファイル名から拡張子 (.zip) を除いたフォルダを作成し、その中に Zip ファイルを解凍します。
-
-    Expand-ZipFile コマンドレットは、まず System.IO.Compression.FileSystem.dll のロードを試みます。
-    System.IO.Compression.FileSystem.dll のロードに成功すると、System.IO.Compression.ZipFile クラスの 
-    ExtractToDirectory メソッドを使って Zip ファイルを解凍します。
+            Expand-ZipFile コマンドレットは、まず System.IO.Compression.FileSystem.dll のロードを試みます。
+            System.IO.Compression.FileSystem.dll のロードに成功すると、System.IO.Compression.ZipFile クラスの 
+            ExtractToDirectory メソッドを使って Zip ファイルを解凍します。
     
-    Force パラメーターが指定されていないときは、System.IO.Compression.ZipArchive クラスを使って 
-    Zip ファイル内のエントリーをチェックします。
-    これは Zip ファイルに含まれるファイルの数が多い場合はパフォーマンスに影響する可能性があるので、
-    そのような場合は Force オプションを指定することを検討してください。
+            Force パラメーターが指定されていないときは、System.IO.Compression.ZipArchive クラスを使って 
+            Zip ファイル内のエントリーをチェックします。
+            これは Zip ファイルに含まれるファイルの数が多い場合はパフォーマンスに影響する可能性があるので、
+            そのような場合は Force オプションを指定することを検討してください。
 
-    System.IO.Compression.FileSystem.dll のロードに失敗すると、シェルモードで Zip ファイルを解凍します。
-    シェルモードでは、System.Shell.Folder.CopyHere メソッドを使って Zip ファイルを解凍します。
+            System.IO.Compression.FileSystem.dll のロードに失敗すると、シェルモードで Zip ファイルを解凍します。
+            シェルモードでは、System.Shell.Folder.CopyHere メソッドを使って Zip ファイルを解凍します。
 
+        .PARAMETER InputObject
+            解凍する Zip ファイルのパスを指定します。
 
-.PARAMETER InputObject
-    解凍する Zip ファイルのパスを指定します。
+        .PARAMETER Path
+            解凍先のフォルダーのパスを指定します。
 
+        .PARAMETER ShellMode
+            強制的にシェルモードで実行するときに指定します。
 
-.PARAMETER Path
-    解凍先のフォルダーのパスを指定します。
+        .PARAMETER Force
+            解凍先のフォルダーが既に存在する場合、そのフォルダを削除してから Zip ファイルを解凍します。
 
-    
-.PARAMETER ShellMode
-    強制的にシェルモードで実行するときに指定します。
+        .PARAMETER Verbose
+            詳細情報を表示します。
 
+        .INPUTS
+            System.String
+            パイプを使用して、InputObject パラメーターを渡すことができます。
 
-.PARAMETER Force
-    解凍先のフォルダーが既に存在する場合、そのフォルダを削除してから Zip ファイルを解凍します。
+        .OUTPUTS
+            System.String
+            Zip ファイルを解凍したフォルダのパスを返します。
 
+        .EXAMPLE
+            Expand-ZipFile sample.zip
+            カレントディレクトリにある sample.zip ファイルをカレントディレクトリの sample フォルダに解凍します。
 
-.PARAMETER Verbose
-    詳細情報を表示します。
+        .EXAMPLE
+            Expand-ZipFile -InputObject .\sample.zip -Path C:\Temp
+            カレントディレクトリにある sample.zip ファイルを C:\Temp\sample フォルダに解凍します。
 
+        .NOTES
+            System.IO.Compression.ZipFile は .NET Framework 4.5 からサポートされています。
 
-.INPUTS
-    System.String
-    パイプを使用して、InputObject パラメーターを渡すことができます。
+        .LINK
+            copyHere Method (System.Shell.Folder)
+            http://msdn.microsoft.com/ja-jp/library/windows/desktop/ms723207.aspx
 
+            Compress Files with Windows PowerShell then package a Windows Vista Sidebar Gadget - David Aiken - Site Home - MSDN Blogs
+            http://blogs.msdn.com/b/daiken/archive/2007/02/12/compress-files-with-windows-powershell-then-package-a-windows-vista-sidebar-gadget.aspx
 
-.OUTPUTS
-    System.String
-    Zip ファイルを解凍したフォルダのパスを返します。
+            CopyHere メソッドから Zip ファイルを処理することはできません
+            http://support.microsoft.com/kb/2679832
 
+            Assembly.Load メソッド (AssemblyName) (System.Reflection)
+            http://msdn.microsoft.com/ja-jp/library/x4cw969y.aspx
 
-.EXAMPLE
-    Expand-ZipFile sample.zip
-    カレントディレクトリにある sample.zip ファイルをカレントディレクトリの sample フォルダに解凍します。
+            ZipFile クラス (System.IO.Compression)
+            http://msdn.microsoft.com/ja-jp/library/system.io.compression.zipfile.aspx
 
-
-.EXAMPLE
-    Expand-ZipFile -InputObject .\sample.zip -Path C:\Temp
-    カレントディレクトリにある sample.zip ファイルを C:\Temp\sample フォルダに解凍します。
-
-
-.NOTES
-    System.IO.Compression.ZipFile は .NET Framework 4.5 からサポートされています。
-
-
-.LINK
-
-    copyHere Method (System.Shell.Folder)
-    http://msdn.microsoft.com/ja-jp/library/windows/desktop/ms723207.aspx
-
-    Compress Files with Windows PowerShell then package a Windows Vista Sidebar Gadget - David Aiken - Site Home - MSDN Blogs
-    http://blogs.msdn.com/b/daiken/archive/2007/02/12/compress-files-with-windows-powershell-then-package-a-windows-vista-sidebar-gadget.aspx
-
-    CopyHere メソッドから Zip ファイルを処理することはできません
-    http://support.microsoft.com/kb/2679832
-
-    Assembly.Load メソッド (AssemblyName) (System.Reflection)
-    http://msdn.microsoft.com/ja-jp/library/x4cw969y.aspx
-
-    ZipFile クラス (System.IO.Compression)
-    http://msdn.microsoft.com/ja-jp/library/system.io.compression.zipfile.aspx
-
-    ZipArchive クラス (System.IO.Compression)
-    http://msdn.microsoft.com/ja-jp/library/system.io.compression.ziparchive.aspx
-#>
+            ZipArchive クラス (System.IO.Compression)
+            http://msdn.microsoft.com/ja-jp/library/system.io.compression.ziparchive.aspx
+    #>
 
     [CmdletBinding()]
     Param (
@@ -176,19 +166,30 @@ Function Expand-ZipFile {
 
     Process
     {
-        try
+        # Remove the following flag / [-]V1.3.0.0 (2014/05/23)
+        # [bool]$completed = $false
+
+        # Add the following flag / [+]V1.3.0.0 (2014/05/23)
+        [bool]$assembly_loaded = $false
+
+        $source_Path = ($InputObject | Convert-Path)
+        $source_Filename = ($source_Path | Split-Path -Leaf)
+        $destination_Path = ($Path | Resolve-Path | Join-Path -ChildPath ([System.IO.FileInfo]$InputObject).BaseName)
+
+
+        if (-not $ShellMode)
         {
-            [bool]$completed = $false
-            $source_Path = ($InputObject | Convert-Path)
-            $source_Filename = ($source_Path | Split-Path -Leaf)
-            $destination_Path = ($Path | Resolve-Path | Join-Path -ChildPath ([System.IO.FileInfo]$InputObject).BaseName)
-
-
-            if (-not $ShellMode)
+            try
             {
-                # Load Assembly
-                [void][System.Reflection.Assembly]::Load($script:AssemblyName)
-                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " '" + ($script:AssemblyName -split ',')[0] + "' is loaded successfully." )
+                # Load Assembly / Add 'if' condition [*]V1.3.0.0 (2014/05/23)
+                if ([System.Reflection.Assembly]::Load($script:AssemblyName) -ne $null)
+                {
+                    Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " '" + ($script:AssemblyName -split ',')[0] + "' is loaded successfully." )
+
+                    # [+]V1.3.0.0 (2014/05/23)
+                    $assembly_loaded = $true
+                }
+
 
                 if ($Force)
                 {
@@ -199,8 +200,11 @@ Function Expand-ZipFile {
                 {
                     # Check Zip Entries
                     [System.IO.Compression.ZipArchive]$archive = [System.IO.Compression.ZipFile]::OpenRead($source_Path)
+
                     $archive.Entries | % {
+
                         Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " ENTRY: $source_Filename/" + ([System.IO.Compression.ZipArchiveEntry]$_).FullName)
+
                         if (($entry = ($destination_Path | Join-Path -ChildPath ([System.IO.Compression.ZipArchiveEntry]$_).FullName)) | Test-Path)
                         {
                             # [*]V1.0.5.0 (2014/01/17)
@@ -216,135 +220,137 @@ Function Expand-ZipFile {
             
                 # Unzip (by .NET)
                 [System.IO.Compression.ZipFile]::ExtractToDirectory($source_Path, $destination_Path)
+                
                 Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " '$source_Filename' -> '$destination_Path'")
-                $completed = $true
+                
+                # [-]V1.3.0.0 (2014/05/23)
+                # $completed = $true
             }
-        }
-        finally
-        {
-            if ($archive -ne $null) { $archive.Dispose() }
-
-            if (-not $completed)
+            catch  # [+]V1.3.0.0 (2014/02/23)
             {
-                # Shell-Mode
-                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + " Enter Shell mode...")
+                if (-not $assembly_loaded)
+                {
+                    Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + " Fail to load '" + ($script:AssemblyName -split ',')[0] + "'!" )
+                }
 
-                # Destination Folder
-                if (-not ($destination_Path | Test-Path)) { New-Item -Path $destination_Path -ItemType Directory }
-
-                $shell = New-Object -ComObject Shell.Application
-                $zip = $shell.NameSpace($source_Path)
-                $dest = $shell.NameSpace($destination_Path)
-                $opt = 0
-
-                # Verbose
-                if ($VerbosePreference -eq 'SilentlyContinue') { $opt += (4 + 1024) }
-
-                # Force
-                if ($Force) { $opt += 16 }
-
-                # Unzip (by Shell)
-                $dest.CopyHere($zip.Items(), $opt)
-                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + " '$source_Filename' -> '$destination_Path'")
+                $destination_Path = [string]::Empty
             }
-
-            # Output
-            Write-Output $destination_Path
+            finally
+            {
+                if ($archive -ne $null) { $archive.Dispose() }
+            }
         }
+
+
+        # Change condition / [*]V1.3.0.0 (2014/05/23)
+        if (-not $assembly_loaded)
+        {
+            # Shell-Mode
+            Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + " Enter Shell mode...")
+
+            # Destination Folder
+            if (-not ($destination_Path | Test-Path)) { New-Item -Path $destination_Path -ItemType Directory }
+
+            $shell = New-Object -ComObject Shell.Application
+            $zip = $shell.NameSpace($source_Path)
+            $dest = $shell.NameSpace($destination_Path)
+            $opt = 0
+
+            # Verbose
+            if ($VerbosePreference -eq 'SilentlyContinue') { $opt += (4 + 1024) }
+
+            # Force
+            if ($Force) { $opt += 16 }
+
+            # Unzip (by Shell)
+            $dest.CopyHere($zip.Items(), $opt)
+            Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + " '$source_Filename' -> '$destination_Path'")
+        }
+
+
+        # Output -> Return / [*]V1.3.0.0 (2014/05/23)
+        return $destination_Path
     }
 }
 
 #####################################################################################################################################################
-Function New-ZipFile {
+Function New-ZipFile
+{
+    <#
+        .SYNOPSIS
+            Zip ファイルを作成します。
 
-<#
-.SYNOPSIS
-    Zip ファイルを作成します。
+        .DESCRIPTION
+            指定されたフォルダーまたはファイルから、フォルダー名またはファイル名に拡張子 .zip を付加した Zip ファイルを作成します。
 
+            New-ZipFile コマンドレットは、まず System.IO.Compression.FileSystem.dll のロードを試みます。
+            System.IO.Compression.FileSystem.dll のロードに成功すると、圧縮対象がフォルダーの場合は 
+            System.IO.Compression.ZipFile クラスの CreateFromDirectory メソッドを使って Zip ファイルを作成します。
+            圧縮対象がファイルの場合は、System.IO.Compression.ZipArchive クラス、および System.IO.Compression.ZipFile クラスと 
+            System.IO.Compression.ZipFileExtensions クラスの CreateEntryFromFile 拡張メソッドを使って Zip ファイルを作成します。
 
-.DESCRIPTION
-    指定されたフォルダーまたはファイルから、フォルダー名またはファイル名に拡張子 .zip を付加した Zip ファイルを作成します。
+            System.IO.Compression.FileSystem.dll のロードに失敗すると、シェルモードで Zip ファイルを作成します。
+            シェルモードでは、System.Shell.Folder.CopyHere メソッドを使って Zip ファイルを作成します。
+            シエルモードでは、フォルダーの圧縮をサポートしていません。
 
-    New-ZipFile コマンドレットは、まず System.IO.Compression.FileSystem.dll のロードを試みます。
-    System.IO.Compression.FileSystem.dll のロードに成功すると、圧縮対象がフォルダーの場合は 
-    System.IO.Compression.ZipFile クラスの CreateFromDirectory メソッドを使って Zip ファイルを作成します。
-    圧縮対象がファイルの場合は、System.IO.Compression.ZipArchive クラス、および System.IO.Compression.ZipFile クラスと 
-    System.IO.Compression.ZipFileExtensions クラスの CreateEntryFromFile 拡張メソッドを使って Zip ファイルを作成します。
+        .PARAMETER InputObject
+            Zip 圧縮するフォルダーまたはファイルのパスを指定します。
 
-    System.IO.Compression.FileSystem.dll のロードに失敗すると、シェルモードで Zip ファイルを作成します。
-    シェルモードでは、System.Shell.Folder.CopyHere メソッドを使って Zip ファイルを作成します。
-    シエルモードでは、フォルダーの圧縮をサポートしていません。
+        .PARAMETER Path
+            作成する Zip ファイルのパスを指定します。
 
+        .PARAMETER ShellMode
+            強制的にシェルモードで実行するときに指定します。
+            ただし、シェルモードはフォルダーの圧縮をサポートしていません。
+            そのため、シェルモードで InputObject がフォルダーの場合、New-ZipFile コマンドレットは System.NotSupportedException 
+            をスローして終了します。
 
-.PARAMETER InputObject
-    Zip 圧縮するフォルダーまたはファイルのパスを指定します。
+        .PARAMETER Force
+            作成する Zip ファイルのパスに既にファイルが存在する場合、そのファイルを削除してから Zip ファイルを作成します。
+            このパラメーターを指定しないと、作成する Zip ファイルのパスに既にファイルが存在する場合、New-ZipFile コマンドレットは
+            何もせずに終了します。
 
+        .PARAMETER Verbose
+            詳細情報を表示します。
 
-.PARAMETER Path
-    作成する Zip ファイルのパスを指定します。
+        .INPUTS
+            System.String
+            パイプを使用して、InputObject パラメーターを渡すことができます。
 
-    
-.PARAMETER ShellMode
-    強制的にシェルモードで実行するときに指定します。
-    ただし、シェルモードはフォルダーの圧縮をサポートしていません。
-    そのため、シェルモードで InputObject がフォルダーの場合、New-ZipFile コマンドレットは System.NotSupportedException 
-    をスローして終了します。
+        .OUTPUTS
+            System.String
+            作成した Zip ファイルのパスを返します。
 
+        .EXAMPLE
+            New-ZipFile .\test.txt
+            カレントディレクトリにある test.txt を Zip 圧縮して test.zip を作成します。
 
-.PARAMETER Force
-    作成する Zip ファイルのパスに既にファイルが存在する場合、そのファイルを削除してから Zip ファイルを作成します。
-    このパラメーターを指定しないと、作成する Zip ファイルのパスに既にファイルが存在する場合、New-ZipFile コマンドレットは
-    何もせずに終了します。
+        .EXAMPLE
+            New-ZipFile -InputObject .\test.txt -Path C:\Temp
+            カレントディレクトリにある test.txt ファイルを Zip 圧縮して C:\Temp\test.zip ファイルを作成します。
 
+        .NOTES
+            System.IO.Compression.ZipFile は .NET Framework 4.5 からサポートされています。
 
-.PARAMETER Verbose
-    詳細情報を表示します。
+        .LINK
+            copyHere Method (System.Shell.Folder)
+            http://msdn.microsoft.com/ja-jp/library/windows/desktop/ms723207.aspx
 
+            Compress Files with Windows PowerShell then package a Windows Vista Sidebar Gadget - David Aiken - Site Home - MSDN Blogs
+            http://blogs.msdn.com/b/daiken/archive/2007/02/12/compress-files-with-windows-powershell-then-package-a-windows-vista-sidebar-gadget.aspx
 
-.INPUTS
-    System.String
-    パイプを使用して、InputObject パラメーターを渡すことができます。
+            CopyHere メソッドから Zip ファイルを処理することはできません
+            http://support.microsoft.com/kb/2679832
 
+            Assembly.Load メソッド (AssemblyName) (System.Reflection)
+            http://msdn.microsoft.com/ja-jp/library/x4cw969y.aspx
 
-.OUTPUTS
-    System.String
-    作成した Zip ファイルのパスを返します。
+            ZipFile クラス (System.IO.Compression)
+            http://msdn.microsoft.com/ja-jp/library/system.io.compression.zipfile.aspx
 
-
-.EXAMPLE
-    New-ZipFile .\test.txt
-    カレントディレクトリにある test.txt を Zip 圧縮して test.zip を作成します。
-
-
-.EXAMPLE
-    New-ZipFile -InputObject .\test.txt -Path C:\Temp
-    カレントディレクトリにある test.txt ファイルを Zip 圧縮して C:\Temp\test.zip ファイルを作成します。
-
-
-.NOTES
-    System.IO.Compression.ZipFile は .NET Framework 4.5 からサポートされています。
-
-
-.LINK
-
-    copyHere Method (System.Shell.Folder)
-    http://msdn.microsoft.com/ja-jp/library/windows/desktop/ms723207.aspx
-
-    Compress Files with Windows PowerShell then package a Windows Vista Sidebar Gadget - David Aiken - Site Home - MSDN Blogs
-    http://blogs.msdn.com/b/daiken/archive/2007/02/12/compress-files-with-windows-powershell-then-package-a-windows-vista-sidebar-gadget.aspx
-
-    CopyHere メソッドから Zip ファイルを処理することはできません
-    http://support.microsoft.com/kb/2679832
-
-    Assembly.Load メソッド (AssemblyName) (System.Reflection)
-    http://msdn.microsoft.com/ja-jp/library/x4cw969y.aspx
-
-    ZipFile クラス (System.IO.Compression)
-    http://msdn.microsoft.com/ja-jp/library/system.io.compression.zipfile.aspx
-
-    ZipArchive クラス (System.IO.Compression)
-    http://msdn.microsoft.com/ja-jp/library/system.io.compression.ziparchive.aspx
-#>
+            ZipArchive クラス (System.IO.Compression)
+            http://msdn.microsoft.com/ja-jp/library/system.io.compression.ziparchive.aspx
+    #>
 
     [CmdletBinding()]
     Param(
@@ -368,39 +374,59 @@ Function New-ZipFile {
 
     Process
     {
-        try
+        # Remove the following flags / [-]V1.3.0.0 (2014/05/23)
+        # [bool]$aborted = $false
+        # [bool]$completed = $false
+
+        # Add the following flag / [+]V1.3.0.0 (2014/05/23)
+        [bool]$assembly_loaded = $false
+
+        $source_Path = ($InputObject | Convert-Path)
+        $source_Filename = ($source_Path | Split-Path -Leaf)
+
+
+        # Zip File Name (Path) / [*]V1.0.5.0 (2014/01/17)
+        if ((Get-Item -Path $source_Path) -is [System.IO.FileInfo])
         {
-            [bool]$aborted = $false
-            [bool]$completed = $false
-            $source_Path = ($InputObject | Convert-Path)
-            $source_Filename = ($source_Path | Split-Path -Leaf)
+            # File
+            $destination_Path = ($Path | Resolve-Path | Join-Path -ChildPath ([System.IO.FileInfo]$source_Path).BaseName) + '.zip'
+        }
+        else
+        {
+            # Directory
+            $destination_Path = ($Path | Resolve-Path | Join-Path -ChildPath ($source_Path | Split-Path -Leaf)) + '.zip'
+        }
+
+        # Validation of Destination Path [+]V1.3.0.0 (2014/05/23)
+        if ($source_Path -eq $destination_Path)
+        {
+            $destination_Path = [string]::Empty
+            throw "Destination Path ('$source_Path') is same as the original zip file."
+        }
 
 
-            # Zip File Name (Path) / [*]V1.0.5.0 (2014/01/17)
-            if ((Get-Item -Path $source_Path) -is [System.IO.FileInfo])
+        if (-not $ShellMode)
+        {
+            try
             {
-                # File
-                $destination_Path = ($Path | Resolve-Path | Join-Path -ChildPath ([System.IO.FileInfo]$source_Path).BaseName) + '.zip'
-            }
-            else
-            {
-                # Directory
-                $destination_Path = ($Path | Resolve-Path | Join-Path -ChildPath ($source_Path | Split-Path -Leaf)) + '.zip'
-            }
+                # Load Assembly / Add 'if' condition [*]V1.3.0.0 (2014/05/23)
+                if ([System.Reflection.Assembly]::Load($script:AssemblyName) -ne $null)
+                {
+                    Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " '" + ($script:AssemblyName -split ',')[0] + "' is loaded successfully." )
 
+                    # [+]V1.3.0.0 (2014/05/23)
+                    $assembly_loaded = $true
+                }
 
-            if (-not $ShellMode)
-            {
-                # Load Assembly
-                [void][System.Reflection.Assembly]::Load($script:AssemblyName)
-                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " '" + ($script:AssemblyName -split ',')[0] + "' is loaded successfully." )
 
                 if (($destination_Path | Test-Path) -and (-not $Force))
                 {
                     # File Already Exist
                     # [*]V1.1.1.0 (2014/02/27) Change from Write-Verbose into Write-Warning
                     Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + " WARNING: Zip Compression of '$source_Filename' is aborted because '$destination_Path' already exists!")
-                    $aborted = $true
+                    
+                    # [-]V1.3.0.0 (2014/05/23)
+                    # $aborted = $true
 
                     # [+]V1.1.0.0 (2014/02/23)
                     $destination_Path = [string]::Empty
@@ -425,39 +451,53 @@ Function New-ZipFile {
                         [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $source_Path, ($source_Path | Split-Path -Leaf))
                     }
                     Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " '$source_Filename' -> '$destination_Path'")
-                    $completed = $true
+                    
+                    # [-]V1.3.0.0 (2014/05/23)
+                    # $completed = $true
                 }
             }
-        }
-        finally
-        {
-            if ($archive -ne $null) { $archive.Dispose() }
-
-            if ((-not $aborted) -and (-not $completed))
+            catch  # [+]V1.3.0.0 (2014/05/23)
             {
-                # Shell mode
-                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + " Enter Shell mode...")
+                if (-not $assembly_loaded)
+                {
+                    Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + " Fail to load '" + ($script:AssemblyName -split ',')[0] + "'!" )
+                }
 
-                # Decompression of Directory in Shell mode is not supported... / [*]V1.0.5.0 (2014/01/17)
-                if ((Get-Item -Path $source_Path) -is [System.IO.DirectoryInfo]) { throw New-Object System.NotSupportedException }
-
-                # Add Zip Header / [*]V1.0.4.0 (2014/01/14)
-                $zip_Header = [System.Convert]::ToByte([char]'P'), [System.Convert]::ToByte([char]'K'), [byte[]](0x05, 0x06), ([byte[]]0x00 * 18)
-                $zip_Header | Set-Content -Path $destination_Path -Encoding Byte
-
-                ($destination_Path | Get-ChildItem).IsReadOnly = $false
-        
-                $shell = New-Object -ComObject Shell.Application
-                $zip = $shell.NameSpace($destination_Path)
-
-                # Create ZIP File (Shell mode)
-                $zip.CopyHere(([System.IO.FileInfo]$source_Path).FullName)
-                Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + " '$source_Filename' -> '$destination_Path'")
+                $destination_Path = [string]::Empty
             }
-
-            # Output
-            Write-Output $destination_Path
+            finally
+            {
+                if ($archive -ne $null) { $archive.Dispose() }
+            }
         }
+
+
+        # Change condition / [*]V1.3.0.0 (2014/05/23)
+        if (-not $assembly_loaded)
+        {
+            # Shell mode
+            Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + " Enter Shell mode...")
+
+            # Decompression of Directory in Shell mode is not supported... / [*]V1.0.5.0 (2014/01/17)
+            if ((Get-Item -Path $source_Path) -is [System.IO.DirectoryInfo]) { throw New-Object System.NotSupportedException }
+
+            # Add Zip Header / [*]V1.0.4.0 (2014/01/14)
+            $zip_Header = [System.Convert]::ToByte([char]'P'), [System.Convert]::ToByte([char]'K'), [byte[]](0x05, 0x06), ([byte[]]0x00 * 18)
+            $zip_Header | Set-Content -Path $destination_Path -Encoding Byte
+
+            ($destination_Path | Get-ChildItem).IsReadOnly = $false
+        
+            $shell = New-Object -ComObject Shell.Application
+            $zip = $shell.NameSpace($destination_Path)
+
+            # Create ZIP File (Shell mode)
+            $zip.CopyHere(([System.IO.FileInfo]$source_Path).FullName)
+            Write-Verbose ('[' + $MyInvocation.MyCommand.Name + '](Shell)' + " '$source_Filename' -> '$destination_Path'")
+        }
+
+
+        # Output -> Return / [*]V1.3.0.0 (2014/05/23)
+        return $destination_Path
     }
 }
 
