@@ -1,7 +1,7 @@
 ZipFile
 =======
 
-Zip File Compression / Decompression Module for PowerShell Version **1.3.0.0**
+Zip File Compression / Decompression Module for PowerShell Version **1.3.1.0**
 
 
 概要
@@ -39,6 +39,10 @@ System.IO.Compression.FileSystem.dll のロードに失敗すると、シェル�
 
 履歴
 ----
+
+**V1.3.1.0** (2014/05/25)  
+Expand-ZipFile / New-ZipFile 両コマンドレットのヘルプコンテンツを修正。  
+New-ZipFile コマンドレットの出力先が不正かどうかのチェックを追加。  
 
 **V1.3.0.0** (2014/05/23)  
 Expand-ZipFile / New-ZipFile 両コマンドレットの主に例外処理を大幅に変更。  
