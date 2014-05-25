@@ -44,6 +44,9 @@
  #  2014/05/22  Version 1.3.0.0  Fix bug regarding $Path parameter of 'New-ZipFile' cmdlet.
  #                               Change indent style.
  #                               Major change of internal process, especially regarding exception.
+ #  2014/05/24  Version 1.3.1.0  Add Help content about 'Path' parameter.
+ #                               Fix bug regarding output path of 'New-ZipFile' cmdlet.
+ #
  #>
 #####################################################################################################################################################
 
@@ -82,6 +85,9 @@ Function Expand-ZipFile
         .PARAMETER Path
             解凍先のフォルダーのパスを指定します。
 
+            このパラメーターで指定されたフォルダーに、InputObject パラメーターから拡張子 (.zip) を除いた名前のフォルダーが
+            自動的に作成され、そのフォルダーの中に Zip ファイルが解凍されます。
+
         .PARAMETER ShellMode
             強制的にシェルモードで実行するときに指定します。
 
@@ -98,6 +104,7 @@ Function Expand-ZipFile
         .OUTPUTS
             System.String
             Zip ファイルを解凍したフォルダのパスを返します。
+            Zip ファイルが解凍されなかった場合は System.String.Empty を返します。
 
         .EXAMPLE
             Expand-ZipFile sample.zip
@@ -297,7 +304,15 @@ Function New-ZipFile
             Zip 圧縮するフォルダーまたはファイルのパスを指定します。
 
         .PARAMETER Path
-            作成する Zip ファイルのパスを指定します。
+            作成した Zip ファイルを保存するフォルダーのパスを指定します。
+
+            InputObject パラメーターがファイルの場合、作成される Zip ファイルには InputObject の拡張子を '.zip' に変更したファイル名が
+            自動的につけられます。
+            InputObject パラメーターがフォルダーの場合は InputObject に拡張子 '.zip' を付加したファイル名になります。
+
+            いずれの場合も、Zip ファイルのパスが InputObject と同じになる場合は、エラーになります。
+
+            省略した場合は、InputObject が置かれているフォルダーに Zip ファイルを作成します。
 
         .PARAMETER ShellMode
             強制的にシェルモードで実行するときに指定します。
@@ -320,6 +335,7 @@ Function New-ZipFile
         .OUTPUTS
             System.String
             作成した Zip ファイルのパスを返します。
+            Zip ファイルが作成されなかった場合は System.String.Empty を返します。
 
         .EXAMPLE
             New-ZipFile .\test.txt
@@ -364,6 +380,10 @@ Function New-ZipFile
         [Parameter(Mandatory=$false, Position=1)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { New-Item -Path $_ -ItemType Directory }
+
+            # [+]V1.3.1.0 (2014/05/25)
+            if ((Get-Item -Path $_) -isnot [System.IO.DirectoryInfo]) { throw New-Object System.IO.DirectoryNotFoundException }
+
             return $true
         } )]
         [string]$Path = ($InputObject | Resolve-Path | Split-Path -Parent),
@@ -397,14 +417,28 @@ Function New-ZipFile
             $destination_Path = ($Path | Resolve-Path | Join-Path -ChildPath ($source_Path | Split-Path -Leaf)) + '.zip'
         }
 
-        # Validation of Destination Path [+]V1.3.0.0 (2014/05/23)
+
+        # Validation of Destination Path / [+]V1.3.0.0 (2014/05/23)
         if ($source_Path -eq $destination_Path)
         {
-            $destination_Path = [string]::Empty
-            throw "Destination Path ('$source_Path') is same as the original zip file."
+            throw New-Object System.ArgumentException "Destination Path ('$source_Path') is same as the original zip file."
         }
 
+        # Validation of Destination Path / [+]V1.3.1.0 (2014/05/25)
+        if ((Get-Item -Path $source_Path) -is [System.IO.DirectoryInfo])
+        {
+            if ($destination_Path.Length -gt $source_Path.Length)
+            {
+                if ((Split-Path -Path $destination_Path -Parent) -contains $source_Path)
+                {
+                    throw New-Object System.ArgumentException "Destination Path ('$source_Path') is same as the original zip file."
+                }
+            }
+        }
+        #>
 
+
+        # Decompression by .NET Framework
         if (-not $ShellMode)
         {
             try
@@ -412,7 +446,8 @@ Function New-ZipFile
                 # Load Assembly / Add 'if' condition [*]V1.3.0.0 (2014/05/23)
                 if ([System.Reflection.Assembly]::Load($script:AssemblyName) -ne $null)
                 {
-                    Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " '" + ($script:AssemblyName -split ',')[0] + "' is loaded successfully." )
+                    Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' `
+                        + " '" + ($script:AssemblyName -split ',')[0] + "' is loaded successfully." )
 
                     # [+]V1.3.0.0 (2014/05/23)
                     $assembly_loaded = $true
@@ -423,7 +458,8 @@ Function New-ZipFile
                 {
                     # File Already Exist
                     # [*]V1.1.1.0 (2014/02/27) Change from Write-Verbose into Write-Warning
-                    Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + " WARNING: Zip Compression of '$source_Filename' is aborted because '$destination_Path' already exists!")
+                    Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' `
+                        + " WARNING: Zip Compression of '$source_Filename' is aborted because '$destination_Path' already exists!")
                     
                     # [-]V1.3.0.0 (2014/05/23)
                     # $aborted = $true
@@ -461,6 +497,11 @@ Function New-ZipFile
                 if (-not $assembly_loaded)
                 {
                     Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + " Fail to load '" + ($script:AssemblyName -split ',')[0] + "'!" )
+                }
+                else
+                {
+                    # [+]V1.3.1.0 (2014/05/25)
+                    Write-Error $_
                 }
 
                 $destination_Path = [string]::Empty
